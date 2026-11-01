@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Tool from '../components/Tool.tsx';
+import { SITE_NAME } from '../config';
+import { presets, groups, sharedFaq } from '../lib/presets';
+
+export function getStaticPaths() {
+  return presets.map((preset) => ({ params: { slug: preset.slug }, props: { preset } }));
+}
+
+const { preset } = Astro.props;
+const faq = [...preset.faq, sharedFaq];
+const groupLabel = groups.find((g) => g.id === preset.group)?.label;
+const related = presets.filter((p) => p.group === preset.group && p.slug !== preset.slug);
+const more = presets
+  .filter((p) => p.group !== preset.group)
+  .filter((p) => ['compress-image-to-100kb', 'png-to-jpg', 'heic-to-jpg', 'resize-image'].includes(p.slug));
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: preset.h1,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout title={preset.title} description={preset.description} jsonLd={jsonLd}>
+  <div class="mb-8 max-w-3xl">
+    <h1 class="text-4xl font-extrabold sm:text-5xl">{preset.h1}</h1>
+    <p class="mt-4 max-w-2xl text-lg text-muted">{preset.lead}</p>
+  </div>
+
+  <Tool client:load defaults={preset.defaults} />
+
+  {
+    preset.sections.map((s) => (
+      <section class="prose-block mt-16">
+        <h2 class="text-2xl font-bold">{s.heading}</h2>
+        <div class="mt-4">
+          {s.body.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="mt-16 max-w-3xl" aria-labelledby="faq">
+    <h2 id="faq" class="text-2xl font-bold">Questions</h2>
+    <div class="mt-5 divide-y divide-line border-y border-line">
+      {
+        faq.map((f) => (
+          <details class="py-4">
+            <summary class="cursor-pointer list-none font-semibold marker:hidden">{f.q}</summary>
+            <p class="mt-2 text-muted">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-16" aria-labelledby="more">
+    <h2 id="more" class="text-2xl font-bold">Related tools</h2>
+    <ul class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+      {
+        [...related, ...more].map((p) => (
+          <li>
+            <a class="underline decoration-line underline-offset-4 hover:text-accent hover:decoration-accent" href={`/${p.slug}`}>
+              {p.nav}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="sr-only">{groupLabel}</p>
+  </section>
+</Layout>

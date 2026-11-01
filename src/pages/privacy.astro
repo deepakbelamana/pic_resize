@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE_NAME } from '../config';
+---
+
+<Layout
+  title={`Privacy | ${SITE_NAME}`}
+  description={`How ${SITE_NAME} handles your images and data.`}
+>
+  <article class="prose-block max-w-3xl">
+    <h1 class="text-4xl font-extrabold">Privacy</h1>
+    <div class="mt-6">
+      <p>
+        Your images are processed inside your browser. They are not uploaded to our servers or to
+        anyone else's, and we cannot see them.
+      </p>
+      <p>
+        Like any website, the hosting provider may keep basic technical logs, such as the pages
+        requested and the time of the request. These logs do not contain your images.
+      </p>
+      <p>
+        If analytics or advertising are added to this site, they may set cookies or collect usage
+        information such as pages viewed. Update this page to describe whichever services you
+        switch on, and add a cookie notice where the law in your visitors' countries requires one.
+      </p>
+      <p>Questions about this policy can be sent to the site owner at the address shown on the site.</p>
+    </div>
+  </article>
+</Layout>

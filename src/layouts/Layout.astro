@@ -1,0 +1,96 @@
+---
+import '../styles/global.css';
+import { SITE_NAME } from '../config';
+import { presets, groups } from '../lib/presets';
+
+interface Props {
+  title: string;
+  description: string;
+  jsonLd?: object[];
+}
+const { title, description, jsonLd = [] } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#2b3ae8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+    <!--
+      Add your analytics script (for example Cloudflare Web Analytics) and, later,
+      your AdSense script here.
+    -->
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2"
+    >
+      Skip to the tool
+    </a>
+
+    <header class="border-b border-line">
+      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
+        <a href="/" class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
+          <svg viewBox="0 0 24 24" class="size-6" aria-hidden="true">
+            <rect width="24" height="24" rx="6" fill="var(--accent)"></rect>
+            <rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="var(--accent-ink)"></rect>
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1.2" fill="var(--accent)"></rect>
+          </svg>
+          {SITE_NAME}
+        </a>
+        <nav aria-label="Popular tools" class="hidden gap-5 text-sm font-medium sm:flex">
+          <a class="hover:text-accent" href="/compress-image-to-100kb">To 100KB</a>
+          <a class="hover:text-accent" href="/png-to-jpg">PNG to JPG</a>
+          <a class="hover:text-accent" href="/heic-to-jpg">HEIC to JPG</a>
+          <a class="hover:text-accent" href="/resize-image">Resize</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="mx-auto max-w-5xl px-5 py-10 sm:py-14">
+      <slot />
+    </main>
+
+    <footer class="border-t border-line">
+      <div class="mx-auto max-w-5xl px-5 py-10">
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {
+            groups.map((g) => (
+              <div>
+                <p class="mb-3 text-sm font-bold">{g.label}</p>
+                <ul class="grid gap-1.5 text-sm text-muted">
+                  {presets
+                    .filter((p) => p.group === g.id)
+                    .map((p) => (
+                      <li>
+                        <a class="hover:text-accent hover:underline" href={`/${p.slug}`}>
+                          {p.nav}
+                        </a>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+        <p class="mt-10 text-sm text-muted">
+          {SITE_NAME} processes images on your device. <a class="underline" href="/privacy">Privacy</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

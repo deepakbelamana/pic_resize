@@ -1,0 +1,176 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Tool from '../components/Tool.tsx';
+import { SITE_NAME } from '../config';
+import { presets, groups } from '../lib/presets';
+import type { ToolDefaults } from '../lib/engine';
+
+const defaults: ToolDefaults = {
+  format: 'original',
+  targetKB: null,
+  quality: 80,
+  width: null,
+  height: null,
+  keepAspect: true,
+  accept: 'image/*,.heic,.heif',
+};
+
+const faq = [
+  {
+    q: 'Are my images uploaded to a server?',
+    a: 'No. Compression, conversion and resizing all happen inside your browser, on your own device. The images never leave it.',
+  },
+  {
+    q: 'Is it really free?',
+    a: 'Yes. There is no signup, no watermark and no limit on how many images you process.',
+  },
+  {
+    q: 'Which image formats can I use?',
+    a: 'You can open JPG, PNG, WebP, GIF, BMP and HEIC (iPhone) images, and save the result as JPG, PNG or WebP.',
+  },
+  {
+    q: 'How do I get an image under a certain size, like 100KB?',
+    a: 'Choose a target file size in the tool. It finds the highest quality that fits under the limit, and reduces the pixel dimensions too if quality alone is not enough.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: SITE_NAME,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title={`${SITE_NAME}: Compress, Convert and Resize Images Free`}
+  description="Compress images to a target size, convert between JPG, PNG, WebP and HEIC, and resize by pixels. Free, private, and nothing is uploaded."
+  jsonLd={jsonLd}
+>
+  <div class="mb-8 max-w-3xl">
+    <h1 class="text-4xl font-extrabold sm:text-5xl">
+      Compress, convert and resize images without uploading them
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg text-muted">
+      Drop in a photo, choose what you need, and download the result. It all runs on your device,
+      so it is private and works on a slow connection.
+    </p>
+  </div>
+
+  <Tool client:load defaults={defaults} />
+
+  <section class="mt-20" aria-labelledby="jobs">
+    <h2 id="jobs" class="text-2xl font-bold sm:text-3xl">Pick the job you have</h2>
+    <p class="mt-2 max-w-2xl text-muted">
+      Each page below opens the same tool with the right settings already filled in.
+    </p>
+    <div class="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        groups.map((g) => (
+          <div>
+            <h3 class="border-b border-line pb-2 text-base font-bold">{g.label}</h3>
+            <ul class="mt-3 grid gap-2 text-sm">
+              {presets
+                .filter((p) => p.group === g.id)
+                .map((p) => (
+                  <li>
+                    <a class="text-ink underline decoration-line underline-offset-4 hover:text-accent hover:decoration-accent" href={`/${p.slug}`}>
+                      {p.nav}
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-20" aria-labelledby="formats">
+    <h2 id="formats" class="text-2xl font-bold sm:text-3xl">JPG, PNG or WebP?</h2>
+    <p class="mt-2 max-w-2xl text-muted">
+      The right format often matters more than the quality setting.
+    </p>
+    <div class="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+      <table class="w-full min-w-[34rem] text-left text-sm">
+        <thead class="border-b border-line">
+          <tr>
+            <th class="px-5 py-3 font-bold">Format</th>
+            <th class="px-5 py-3 font-bold">Best for</th>
+            <th class="px-5 py-3 font-bold">Transparency</th>
+            <th class="px-5 py-3 font-bold">File size</th>
+          </tr>
+        </thead>
+        <tbody class="[&_td]:px-5 [&_td]:py-3 [&_tr+tr]:border-t [&_tr+tr]:border-line">
+          <tr>
+            <td class="font-semibold">JPG</td>
+            <td>Photographs, form uploads</td>
+            <td>No</td>
+            <td>Small</td>
+          </tr>
+          <tr>
+            <td class="font-semibold">PNG</td>
+            <td>Logos, screenshots, text</td>
+            <td>Yes</td>
+            <td>Large for photos</td>
+          </tr>
+          <tr>
+            <td class="font-semibold">WebP</td>
+            <td>Websites that want fast pages</td>
+            <td>Yes</td>
+            <td>Smallest</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose-block mt-20" aria-labelledby="tips">
+    <h2 id="tips" class="text-2xl font-bold sm:text-3xl">Four ways to get a smaller file</h2>
+    <div class="mt-5">
+      <p>
+        Crop first. Empty borders cost as many bytes as the subject does, and cropping is the one
+        change that removes data without touching quality.
+      </p>
+      <p>
+        Reduce the pixel size next. A phone photo is often 4000 pixels wide, but a screen or a form
+        rarely needs more than 1200. Halving both dimensions leaves a quarter of the pixels.
+      </p>
+      <p>
+        Pick the format that suits the picture. Photographs belong in JPG or WebP. Keep PNG for
+        logos and screenshots with sharp text.
+      </p>
+      <p>
+        Only then lower the quality. Around 80 percent is a good default, and the tool's target
+        size option picks the best value for you when you have a hard limit.
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-20 max-w-3xl" aria-labelledby="faq">
+    <h2 id="faq" class="text-2xl font-bold sm:text-3xl">Common questions</h2>
+    <div class="mt-5 divide-y divide-line border-y border-line">
+      {
+        faq.map((f) => (
+          <details class="group py-4">
+            <summary class="cursor-pointer list-none font-semibold marker:hidden">{f.q}</summary>
+            <p class="mt-2 text-muted">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</Layout>
